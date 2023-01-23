@@ -2,9 +2,16 @@ package br.com.alura.leilao.model;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.List;
+
+import br.com.alura.leilao.builder.LeilaoBuilder;
+import br.com.alura.leilao.exception.LanceMenorQueUltimoLance;
+import br.com.alura.leilao.exception.LanceSeguidoDoMesmoUsuario;
+import br.com.alura.leilao.exception.UsuarioJaDeuCincoLances;
 
 public class LeilaoTest {
 
@@ -38,14 +45,6 @@ public class LeilaoTest {
     }
 
     @Test
-    public void deve_DevolverMaiorLance_QuandoRecebeMaisDeUmLanceEmOrdemDecrescente() {
-        CONSOLE.propoe(new Lance(ALEX, 10000.0));
-        CONSOLE.propoe(new Lance(new Usuario("Fran"), 9000.0));
-        double lanceDevolvido = CONSOLE.getMaiorLance();
-        assertEquals(10000.0, lanceDevolvido, DELTA);
-    }
-
-    @Test
     public void deve_DevolverMenorLance_QuandoRecebeApenasUmLance() {
         CONSOLE.propoe(new Lance(ALEX, 200.0));
         double lanceDevolvido = CONSOLE.getMenorLance();
@@ -58,14 +57,6 @@ public class LeilaoTest {
         CONSOLE.propoe(new Lance(new Usuario("Fran"), 200.0));
         double lanceDevolvido = CONSOLE.getMenorLance();
         assertEquals(100.0, lanceDevolvido, DELTA);
-    }
-
-    @Test
-    public void deve_DevolverMenorLance_QuandoRecebeMaisDeUmLanceEmOrdemDecrescente() {
-        CONSOLE.propoe(new Lance(ALEX, 10000.0));
-        CONSOLE.propoe(new Lance(new Usuario("Fran"), 9000.0));
-        double lanceDevolvido = CONSOLE.getMenorLance();
-        assertEquals(9000.0, lanceDevolvido, DELTA);
     }
 
     @Test
@@ -127,6 +118,48 @@ public class LeilaoTest {
         assertEquals(700.0, lancesDevolvidosMaisUm.get(0).getValor(), DELTA);
         assertEquals(600.0, lancesDevolvidosMaisUm.get(1).getValor(), DELTA);
         assertEquals(500.0, lancesDevolvidosMaisUm.get(2).getValor(), DELTA);
+    }
+
+    @Test
+    public void deve_DevolverValorZeroParaMaiorLance_QuandoNaoTiverLances() {
+        double lanceDevolvido = CONSOLE.getMaiorLance();
+        assertEquals(0.0, lanceDevolvido, DELTA);
+    }
+
+    @Test
+    public void deve_DevolverValorZeroParaMenorLance_QuandoNaoTiverLances() {
+        double lanceDevolvido = CONSOLE.getMenorLance();
+        assertEquals(0.0, lanceDevolvido, DELTA);
+    }
+
+    @Test(expected = LanceMenorQueUltimoLance.class)
+    public void deve_LancarException_QuandoForMenorQueOMaiorLance() {
+        CONSOLE.propoe(new Lance(ALEX, 500.0));
+        CONSOLE.propoe(new Lance(new Usuario("Fran"), 400.0));
+    }
+
+    @Test(expected = LanceSeguidoDoMesmoUsuario.class)
+    public void deveLancarException_QuandoForOMesmoUsuarioDoUltimoLance() {
+        CONSOLE.propoe(new Lance(ALEX, 500.0));
+        CONSOLE.propoe(new Lance(ALEX, 600.0));
+    }
+
+    @Test(expected = UsuarioJaDeuCincoLances.class)
+    public void deveLancarException_QuandoUsuarioDerMaisDeCincoLances() {
+        final Usuario FRAN = new Usuario("Fran");
+        final Leilao console = new LeilaoBuilder("Console")
+                .lance(ALEX, 100.0)
+                .lance(FRAN, 200.0)
+                .lance(ALEX, 300.0)
+                .lance(FRAN, 400.0)
+                .lance(ALEX, 500.0)
+                .lance(FRAN, 600.0)
+                .lance(ALEX, 700.0)
+                .lance(FRAN, 800.0)
+                .lance(ALEX, 900.0)
+                .lance(FRAN, 1000.0)
+                .lance(ALEX, 1100.0)
+                .build();
     }
 
 }
