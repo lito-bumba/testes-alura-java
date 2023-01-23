@@ -1,7 +1,14 @@
 package br.com.alura.leilao.model;
 
+import static org.hamcrest.CoreMatchers.both;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,14 +33,14 @@ public class LeilaoTest {
         String descricaoDevolvida = CONSOLE.getDescricao();
 
         // Testar Resultado Esperado
-        assertEquals("Console", descricaoDevolvida);
+        assertThat(descricaoDevolvida, is(equalTo("Console")));
     }
 
     @Test
     public void deve_DevolverMaiorLance_QuandoRecebeApenasUmLance() {
         CONSOLE.propoe(new Lance(ALEX, 200.0));
         double maiorLanceDevolvido = CONSOLE.getMaiorLance();
-        assertEquals(200.0, maiorLanceDevolvido, DELTA);
+        assertThat(maiorLanceDevolvido, closeTo(200.0, DELTA));
     }
 
     @Test
@@ -66,10 +73,12 @@ public class LeilaoTest {
         CONSOLE.propoe(new Lance(ALEX, 400.0));
 
         List<Lance> lancesDevolvidos = CONSOLE.tresMaioresLances();
-        assertEquals(3, lancesDevolvidos.size());
-        assertEquals(400.0, lancesDevolvidos.get(0).getValor(), DELTA);
-        assertEquals(300.0, lancesDevolvidos.get(1).getValor(), DELTA);
-        assertEquals(200.0, lancesDevolvidos.get(2).getValor(), DELTA);
+
+        assertThat(lancesDevolvidos, hasSize(equalTo(3)));
+        assertThat(lancesDevolvidos, contains(
+                new Lance(ALEX, 400.0),
+                new Lance(new Usuario("Fran"), 300.0),
+                new Lance(ALEX, 200.0)));
     }
 
     @Test
@@ -147,19 +156,7 @@ public class LeilaoTest {
     @Test(expected = UsuarioJaDeuCincoLances.class)
     public void deveLancarException_QuandoUsuarioDerMaisDeCincoLances() {
         final Usuario FRAN = new Usuario("Fran");
-        final Leilao console = new LeilaoBuilder("Console")
-                .lance(ALEX, 100.0)
-                .lance(FRAN, 200.0)
-                .lance(ALEX, 300.0)
-                .lance(FRAN, 400.0)
-                .lance(ALEX, 500.0)
-                .lance(FRAN, 600.0)
-                .lance(ALEX, 700.0)
-                .lance(FRAN, 800.0)
-                .lance(ALEX, 900.0)
-                .lance(FRAN, 1000.0)
-                .lance(ALEX, 1100.0)
-                .build();
+        final Leilao console = new LeilaoBuilder("Console").lance(ALEX, 100.0).lance(FRAN, 200.0).lance(ALEX, 300.0).lance(FRAN, 400.0).lance(ALEX, 500.0).lance(FRAN, 600.0).lance(ALEX, 700.0).lance(FRAN, 800.0).lance(ALEX, 900.0).lance(FRAN, 1000.0).lance(ALEX, 1100.0).build();
     }
 
 }
