@@ -3,8 +3,8 @@ package br.com.alura.leilao.ui.util;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-
 import org.junit.Test;
+import br.com.alura.leilao.formatter.FormatadorDeMoeda;
 
 public class FormatadorDeMoedaTest {
 
